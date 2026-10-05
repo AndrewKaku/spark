@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<title>Flame</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+    touch-action: none;
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== SPARK 上方導覽列 ===== */
+
+.top-bar {
+    height: calc(70px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+    padding-left: 18px;
+    padding-right: 18px;
+
+    background: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-shrink: 0;
+}
+
+
+/* SPARK 品牌 */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.spark-logo {
+    color: #ff4f67;
+    font-size: 30px;
+    line-height: 1;
+}
+
+.spark-name {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+
+/* Discover / Nearby */
+
+.top-tabs {
+    display: flex;
+    align-items: center;
+
+    border: 1px solid #d8d8d8;
+    border-radius: 30px;
+
+    height: 42px;
+}
+
+.tab {
+    height: 100%;
+    padding: 0 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 15px;
+    color: #777;
+}
+
+.tab.active {
+    color: #111;
+    font-weight: 600;
+
+    border: 2px solid #111;
+    border-radius: 30px;
+
+    margin: -1px;
+}
+
+
+/* 右邊設定圖示 */
+
+.filter-icon {
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-icon svg {
+    width: 24px;
+    height: 24px;
+
+    fill: white;
+    stroke: #111;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.app {
+    flex: 1;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card-container {
+    position: relative;
+
+    width: min(92vw, 430px);
+
+    flex: 1;
+
+    min-height: 0;
+
+    margin-top: 12px;
+    margin-bottom: 0;
+}
+
+.card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,.15);
+
+    transition: transform .3s ease;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.info {
+    position: absolute;
+    bottom: 75px;
+    transform: translateY(-25px);
+    width: 100%;
+    padding: 60px 20px 20px;
+
+    color: white;
+}
+
+.name {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.bio {
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.like,
+.nope {
+    position: absolute;
+    top: 40px;
+
+    padding: 8px 14px;
+
+    border: 4px solid;
+    border-radius: 8px;
+
+    font-size: 32px;
+    font-weight: bold;
+
+    opacity: 0;
+}
+
+.like {
+    left: 25px;
+    color: #35d07f;
+    border-color: #35d07f;
+    transform: rotate(-15deg);
+}
+
+.nope {
+    right: 25px;
+    color: #ff4f67;
+    border-color: #ff4f67;
+    transform: rotate(15deg);
+}
+
+/* ===== 五個操作按鈕 ===== */
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 18px;
+
+    margin-top: -70px;
+    margin-bottom: 12px;
+
+    transform: translateY(-30px);
+
+    flex-shrink: 0;
+
+    position: relative;
+    z-index: 20;
+}
+
+.action-button {
+    width: 62px;
+    height: 62px;
+
+    border-radius: 50%;
+    background: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 4px 14px rgba(0,0,0,.16);
+}
+
+.action-button svg {
+    width: 31px;
+    height: 31px;
+
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* 重刷 */
+
+.action-button.rewind svg {
+    fill: none;
+    stroke: #ffb21a;
+}
+
+
+/* X */
+
+.action-button.reject svg {
+    fill: none;
+    stroke: #ff4f67;
+    stroke-width: 3.5;
+}
+
+
+/* 星星 */
+
+.action-button.star svg {
+    fill: #19a7e8;
+    stroke: #19a7e8;
+}
+
+
+/* 愛心 */
+
+.action-button.heart svg {
+    fill: #16c96b;
+    stroke: #16c96b;
+}
+
+
+/* 私訊 */
+
+.action-button.message svg {
+    fill: #19a7e8;
+    stroke: #19a7e8;
+}
+
+/* ===== SPARK 底部導覽列 ===== */
+
+.bottom-nav {
+    width: 100%;
+    height: calc(72px + env(safe-area-inset-bottom));
+    padding: 8px 12px env(safe-area-inset-bottom);
+
+    background: white;
+    border-top: 1px solid #eeeeee;
+
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+
+    flex-shrink: 0;
+}
+
+.nav-item {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    color: #999;
+    user-select: none;
+}
+
+.nav-icon {
+    font-size: 25px;
+    height: 31px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-icon svg {
+    width: 24px;
+    height: 24px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.nav-label {
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.nav-item.active {
+    color: #ff4f67;
+}
+
+/* Likes 未讀紅點 */
+
+.likes-icon {
+    position: relative;
+}
+
+.notification-dot {
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    background: #ff3b4f;
+    border-radius: 50%;
+
+    top: 1px;
+    right: -1px;
+
+    border: 2px solid white;
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="top-bar">
+
+    <div class="brand">
+        <span class="spark-logo">✦</span>
+        <span class="spark-name">SPARK</span>
+    </div>
+
+    <div class="top-tabs">
+        <div class="tab active">Discover</div>
+        <div class="tab">Nearby</div>
+    </div>
+
+    <div class="filter-icon">
+    <svg viewBox="0 0 24 24">
+        <line x1="4" y1="7" x2="20" y2="7"></line>
+        <circle cx="9" cy="7" r="2"></circle>
+
+        <line x1="4" y1="17" x2="20" y2="17"></line>
+        <circle cx="15" cy="17" r="2"></circle>
+    </svg>
+</div>
+
+</header>
+
+<div class="app">
+
+<div class="card-container" id="cards">
+
+<div class="card">
+<img src="photos/Ben.jpg" data-photo1="photos/Ben.jpg" data-photo2="photos/Andrew.jpg" data-current="1">
+
+<div class="like">LIKE</div>
+<div class="nope">NOPE</div>
+
+<div class="info">
+<div class="name">Emma, 24</div>
+<div class="bio">Coffee, films and bad decisions.</div>
+</div>
+</div>
+
+
+<div class="card">
+<img src="https://picsum.photos/id/65/600/900">
+
+<div class="like">LIKE</div>
+<div class="nope">NOPE</div>
+
+<div class="info">
+<div class="name">Sophie, 26</div>
+<div class="bio">London • Designer</div>
+</div>
+</div>
+
+
+<div class="card">
+<img src="https://picsum.photos/id/91/600/900">
+
+<div class="like">LIKE</div>
+<div class="nope">NOPE</div>
+
+<div class="info">
+<div class="name">Mia, 25</div>
+<div class="bio">Tell me your favourite horror movie.</div>
+</div>
+</div>
+
+</div>
+
+
+<div class="action-buttons">
+
+    <div class="action-button rewind">
+        <svg viewBox="0 0 24 24">
+            <path d="M7 7H3V3"></path>
+            <path d="M3.5 7A9 9 0 1 1 3 16"></path>
+        </svg>
+    </div>
+
+    <div class="action-button reject" id="reject">
+        <svg viewBox="0 0 24 24">
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+        </svg>
+    </div>
+
+    <div class="action-button star">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 3L14.8 8.7L21 9.6L16.5 14L17.6 20.2L12 17.3L6.4 20.2L7.5 14L3 9.6L9.2 8.7Z"></path>
+        </svg>
+    </div>
+
+    <div class="action-button heart" id="heart">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 20S4 15.5 4 9.5C4 6.5 6 4.5 8.8 4.5C10.4 4.5 11.5 5.3 12 6.2C12.5 5.3 13.6 4.5 15.2 4.5C18 4.5 20 6.5 20 9.5C20 15.5 12 20 12 20Z"></path>
+        </svg>
+    </div>
+
+    <div class="action-button message">
+        <svg viewBox="0 0 24 24">
+            <path d="M21 4L10 15"></path>
+            <path d="M21 4L14 21L10 15L3 11L21 4Z"></path>
+        </svg>
+    </div>
+
+</div>
+
+</div>
+
+<nav class="bottom-nav">
+
+    <div class="nav-item active">
+        <div class="nav-icon">
+    <svg viewBox="0 0 24 24">
+        <path d="M3 10.5L12 3l9 7.5"></path>
+        <path d="M5 9.5V21h14V9.5"></path>
+        <path d="M9 21v-7h6v7"></path>
+    </svg>
+</div>
+        <div class="nav-label">Home</div>
+    </div>
+
+    <div class="nav-item">
+        <div class="nav-icon">
+    <svg viewBox="0 0 24 24">
+        <circle cx="10.5" cy="10.5" r="6.5"></circle>
+        <line x1="15.5" y1="15.5" x2="21" y2="21"></line>
+    </svg>
+</div>
+        <div class="nav-label">Explore</div>
+    </div>
+
+    <div class="nav-item">
+    <div class="nav-icon likes-icon">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 21S4 16.5 4 9.5C4 6.5 6 4.5 8.8 4.5C10.4 4.5 11.5 5.3 12 6.2C12.5 5.3 13.6 4.5 15.2 4.5C18 4.5 20 6.5 20 9.5C20 16.5 12 21 12 21Z"></path>
+        </svg>
+
+        <span class="notification-dot"></span>
+    </div>
+
+    <div class="nav-label">Likes</div>
+</div>
+
+    <div class="nav-item">
+        <div class="nav-icon">
+    <svg viewBox="0 0 24 24">
+        <path d="M20 11.5C20 15.6 16.4 19 12 19C10.8 19 9.6 18.7 8.6 18.3L4 20L5.4 15.8C4.5 14.6 4 13.1 4 11.5C4 7.4 7.6 4 12 4C16.4 4 20 7.4 20 11.5Z"></path>
+    </svg>
+</div>
+        <div class="nav-label">Chat</div>
+    </div>
+
+    <div class="nav-item">
+        <div class="nav-icon">
+    <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4.5 21C5.2 16.8 8 14.5 12 14.5C16 14.5 18.8 16.8 19.5 21"></path>
+    </svg>
+</div>
+        <div class="nav-label">Profile</div>
+    </div>
+
+</nav>
+
+
+<script>
+
+let cards = document.querySelectorAll(".card");
+
+let current = cards.length - 1;
+
+let startX = 0;
+let currentX = 0;
+let dragging = false;
+
+
+function getCard() {
+    return cards[current];
+}
+
+
+function startDrag(e) {
+
+    if (current < 0) return;
+
+    dragging = true;
+
+    startX =
+    e.touches
+    ? e.touches[0].clientX
+    : e.clientX;
+
+    getCard().style.transition = "none";
+}
+
+
+function drag(e) {
+
+    if (!dragging) return;
+
+    currentX =
+    (e.touches
+    ? e.touches[0].clientX
+    : e.clientX)
+    - startX;
+
+    let card = getCard();
+
+    let rotation = currentX / 15;
+
+    card.style.transform =
+    `translateX(${currentX}px)
+     rotate(${rotation}deg)`;
+
+
+    let like =
+    card.querySelector(".like");
+
+    let nope =
+    card.querySelector(".nope");
+
+
+    if (currentX > 0) {
+
+        like.style.opacity =
+        Math.min(currentX / 100, 1);
+
+        nope.style.opacity = 0;
+
+    } else {
+
+        nope.style.opacity =
+        Math.min(-currentX / 100, 1);
+
+        like.style.opacity = 0;
+    }
+}
+
+
+function endDrag() {
+
+    if (!dragging) return;
+
+    dragging = false;
+
+    let card = getCard();
+
+    card.style.transition =
+    "transform .3s ease";
+
+
+    if (Math.abs(currentX) > 100) {
+
+        let direction =
+        currentX > 0 ? 1 : -1;
+
+        card.style.transform =
+        `translateX(${direction * 1000}px)
+         rotate(${direction * 30}deg)`;
+
+        current--;
+
+    } else {
+
+        card.style.transform =
+        "translateX(0) rotate(0)";
+    }
+
+    currentX = 0;
+}
+
+
+document.addEventListener(
+"mousedown",
+startDrag
+);
+
+document.addEventListener(
+"mousemove",
+drag
+);
+
+document.addEventListener(
+"mouseup",
+endDrag
+);
+
+
+document.addEventListener(
+"touchstart",
+startDrag
+);
+
+document.addEventListener(
+"touchmove",
+drag
+);
+
+document.addEventListener(
+"touchend",
+endDrag
+);
+
+
+document
+.getElementById("heart")
+.onclick = function() {
+
+    if (current < 0) return;
+
+    currentX = 200;
+
+    dragging = true;
+
+    endDrag();
+};
+
+
+document
+.getElementById("reject")
+.onclick = function() {
+
+    if (current < 0) return;
+
+    currentX = -200;
+
+    dragging = true;
+
+    endDrag();
+};
+
+
+// 點照片左右兩邊切換照片
+document.querySelectorAll(".card img").forEach(function(img) {
+
+    img.addEventListener("click", function(e) {
+
+        // 如果這個人沒有第二張照片，就什麼都不做
+        if (!img.dataset.photo2) return;
+
+        let rect = img.getBoundingClientRect();
+
+        // 算出你點的是照片的左邊還是右邊
+        let clickX = e.clientX - rect.left;
+
+        if (clickX > rect.width / 2) {
+
+            // 點右半邊 → 第二張
+            img.src = img.dataset.photo2;
+            img.dataset.current = "2";
+
+        } else {
+
+            // 點左半邊 → 第一張
+            img.src = img.dataset.photo1;
+            img.dataset.current = "1";
+
+        }
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>
